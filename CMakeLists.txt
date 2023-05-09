@@ -19,8 +19,6 @@ include(${Slicer_USE_FILE})
 
 #-----------------------------------------------------------------------------
 # Extension modules
-add_subdirectory(FreeSurferSkullStripper)
-## NEXT_MODULE
 add_subdirectory(FreeSurferMRIWatershedSkullStrip)
 add_subdirectory(FreeSurferSynthStripSkullStrip)
 

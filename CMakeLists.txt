@@ -5,9 +5,9 @@ project(FreeSurferSkullStripper)
 #-----------------------------------------------------------------------------
 # Extension meta-information
 set(EXTENSION_HOMEPAGE "https://www.slicer.org/wiki/Documentation/Nightly/Extensions/FreeSurferSkullStripper")
-set(EXTENSION_CATEGORY "Examples")
-set(EXTENSION_CONTRIBUTORS "John Doe (AnyWare Corp.)")
-set(EXTENSION_DESCRIPTION "This is an example of a simple extension")
+set(EXTENSION_CATEGORY "Segmentation")
+set(EXTENSION_CONTRIBUTORS "Benjamin Zwick")
+set(EXTENSION_DESCRIPTION "Skull stripping for head studies using FreeSurfer.")
 set(EXTENSION_ICONURL "https://www.example.com/Slicer/Extensions/FreeSurferSkullStripper.png")
 set(EXTENSION_SCREENSHOTURLS "https://www.example.com/Slicer/Extensions/FreeSurferSkullStripper/Screenshots/1.png")
 set(EXTENSION_DEPENDS "NA") # Specified as a list or "NA" if no dependencies

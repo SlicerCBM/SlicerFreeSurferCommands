@@ -19,19 +19,18 @@ class FreeSurferMRIWatershedSkullStrip(ScriptedLoadableModule):
 
     def __init__(self, parent):
         ScriptedLoadableModule.__init__(self, parent)
-        self.parent.title = "FreeSurferMRIWatershedSkullStrip"  # TODO: make this more human readable by adding spaces
-        self.parent.categories = ["Examples"]  # TODO: set categories (folders where the module shows up in the module selector)
+        self.parent.title = "FreeSurfer MRI Watershed Skull Strip"  # TODO: make this more human readable by adding spaces
+        self.parent.categories = ["Segmentation"]
         self.parent.dependencies = []  # TODO: add here list of module names that this module requires
-        self.parent.contributors = ["John Doe (AnyWare Corp.)"]  # TODO: replace with "Firstname Lastname (Organization)"
+        self.parent.contributors = ["Benjamin Zwick"]
         # TODO: update with short description of the module and a link to online module documentation
         self.parent.helpText = """
-This is an example of scripted loadable module bundled in an extension.
+This module strips skull and other non-brain tissue and produces the brain volume from T1 volume using FreeSurfer's MRI watershed algorithm.
 See more information in <a href="https://github.com/organization/projectname#FreeSurferMRIWatershedSkullStrip">module documentation</a>.
 """
         # TODO: replace with organization, grant and thanks
         self.parent.acknowledgementText = """
-This file was originally developed by Jean-Christophe Fillion-Robin, Kitware Inc., Andras Lasso, PerkLab,
-and Steve Pieper, Isomics, Inc. and was partially funded by NIH grant 3P41RR013218-12S1.
+This module uses FreeSurfer (https://surfer.nmr.mgh.harvard.edu).
 """
 
         # Additional initialization step after application startup is complete

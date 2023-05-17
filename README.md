@@ -1,9 +1,9 @@
 # Slicer FreeSurfer Commands
 
-Run FreeSurfer commands using 3D Slicer's graphical user interface.
+Run FreeSurfer commands using [3D Slicer](https://www.slicer.org)'s graphical user interface.
 
 Features include:
-- segmentation
+- (TODO) segmentation
 - skull stripping
 
 ## Modules

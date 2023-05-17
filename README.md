@@ -6,7 +6,7 @@ Features include:
 - (TODO) segmentation
 - skull stripping
 
-![](Screenshot01.jpg)
+![](Screenshot01.png)
 
 ## Modules
 

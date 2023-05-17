@@ -6,12 +6,18 @@ import sys
 DEBUG = False
 
 
-def main(args):
-    input_fname = args.image
-    output_fname = args.out
-    mask_fname = args.mask
-
+def convert_image(ifile, ofile):
     import SimpleITK as sitk
+
+    reader = sitk.ImageFileReader()
+    reader.SetFileName(ifile)
+    image = reader.Execute()
+    writer = sitk.ImageFileWriter()
+    writer.SetFileName(ofile)
+    writer.Execute(image)
+
+
+def main(args):
     import tempfile
     import subprocess, os
     from pathlib import Path
@@ -21,22 +27,15 @@ def main(args):
         if DEBUG:
             print("temp_path:", temp_path)
 
-        reader = sitk.ImageFileReader()
-        reader.SetFileName(input_fname)
-        image = reader.Execute()
-
-        pixelID = image.GetPixelID()
-
-        # Convert image to FreeSurfer mgz format
+        # Temporary image files in FreeSurfer format
         input_temp_fname = str(temp_path / 'input.mgz')
         output_temp_fname = str(temp_path / 'stripped.mgz')
         mask_temp_fname = str(temp_path / 'mask.mgz')
         if DEBUG:
             print(input_temp_fname)
 
-        writer = sitk.ImageFileWriter()
-        writer.SetFileName(input_temp_fname)
-        writer.Execute(image)
+        # Convert image to FreeSurfer mgz format
+        convert_image(args.image, input_temp_fname)
 
         if DEBUG:
             os.listdir(temp_path)
@@ -49,9 +48,9 @@ def main(args):
         print("FREESURFER_HOME:", fs_env['FREESURFER_HOME'])
 
         cmd = [fs_env['FREESURFER_HOME'] + '/bin/mri_synthstrip', '-i', input_temp_fname]
-        if output_fname:
+        if args.out:
             cmd.extend(['-o', output_temp_fname])
-        if mask_fname:
+        if args.mask:
             cmd.extend(['-m', mask_temp_fname])
         if args.gpu:
             cmd.extend(['-g'])
@@ -65,20 +64,11 @@ def main(args):
         # Convert images to NRRD
         outputs = []
         if args.out is not None:
-            outputs.append([output_temp_fname, output_fname])
+            outputs.append([output_temp_fname, args.out])
         if args.mask is not None:
-            outputs.append([mask_temp_fname, mask_fname])
-        for tmp, img in outputs:
-            reader.SetFileName(tmp)
-            image = reader.Execute()
-
-            caster = sitk.CastImageFilter()
-            caster.SetOutputPixelType(pixelID)
-            image = caster.Execute(image)
-
-            writer = sitk.ImageFileWriter()
-            writer.SetFileName(img)
-            writer.Execute(image)
+            outputs.append([mask_temp_fname, args.mask])
+        for tmp, out in outputs:
+            convert_image(tmp, out)
 
 
 if __name__ == "__main__":

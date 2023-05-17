@@ -84,7 +84,8 @@ def main(args):
 if __name__ == "__main__":
     import argparse
 
-    print(sys.argv[0])
+    if DEBUG:
+        print(sys.argv[0])
 
     # These arguments are based on those of the SynthStrip tool:
     # https://surfer.nmr.mgh.harvard.edu/docs/synthstrip/#usage
@@ -93,15 +94,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # Input image to skullstrip.
-    parser.add_argument('-i', '--image', required=True,
+    parser.add_argument('-i', '--image',
                         help='Input image to skullstrip.')
 
     # Save stripped image to path.
-    parser.add_argument('-o', '--out', required=False,
+    parser.add_argument('-o', '--out',
                         help='Save stripped image to path.')
 
     # Save binary brain mask to path.
-    parser.add_argument('-m', '--mask', required=False,
+    parser.add_argument('-m', '--mask',
                         help='Save binary brain mask to path.')
 
     # Use the GPU.
@@ -109,7 +110,7 @@ if __name__ == "__main__":
                         help='Use the GPU.')
 
     # Mask border threshold in mm. Default is 1.
-    parser.add_argument('-b', '--border', required=False,
+    parser.add_argument('-b', '--border',
                         help='Mask border threshold in mm. Default is 1.')
 
     # Exclude CSF from brain border.
@@ -124,9 +125,15 @@ if __name__ == "__main__":
     if DEBUG:
         print(args)
 
-    if not args.out and not args.mask:
-        print("Error: User must request output Stripped Volume, Mask Volume, or both.")
+    if not args.image:
+        print("User must set the Input Volume.", file=sys.stderr)
         sys.exit(1)
+
+    if not args.out and not args.mask:
+        print("User must request output for either Stripped Volume or Mask Volume, or both.", file=sys.stderr)
+        sys.exit(1)
+
+    # NOTE: Do not print anything to stdout before this line (print errors only).
 
     main(args)
 

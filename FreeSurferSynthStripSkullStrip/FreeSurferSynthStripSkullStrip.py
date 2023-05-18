@@ -28,14 +28,14 @@ def main(args):
             print("temp_path:", temp_path)
 
         # Temporary image files in FreeSurfer format
-        input_temp_fname = str(temp_path / 'input.mgz')
-        output_temp_fname = str(temp_path / 'stripped.mgz')
-        mask_temp_fname = str(temp_path / 'mask.mgz')
+        temp_image = str(temp_path / 'input.mgz')
+        temp_out = str(temp_path / 'stripped.mgz')
+        temp_mask = str(temp_path / 'mask.mgz')
         if DEBUG:
-            print(input_temp_fname)
+            print(temp_image)
 
         # Convert image to FreeSurfer mgz format
-        convert_image(args.image, input_temp_fname)
+        convert_image(args.image, temp_image)
 
         if DEBUG:
             os.listdir(temp_path)
@@ -43,17 +43,21 @@ def main(args):
         fs_env = os.environ.copy()
         if DEBUG:
             print(fs_env)
-        # Use FreeSurfer's Python environment
+        # Use system Python environment
         fs_env['PYTHONHOME'] = ''
+        if DEBUG:
+            print("PYTHONHOME:", fs_env['PYTHONHOME'])
+            print("PYTHONPATH:", fs_env['PYTHONPATH'])
         print("FREESURFER_HOME:", fs_env['FREESURFER_HOME'])
 
-        cmd = [fs_env['FREESURFER_HOME'] + '/bin/mri_synthstrip', '-i', input_temp_fname]
+        cmd = [fs_env['FREESURFER_HOME'] + '/bin/mri_synthstrip']
+        cmd.extend(['--image', temp_image])
         if args.out:
-            cmd.extend(['-o', output_temp_fname])
+            cmd.extend(['--out', temp_out])
         if args.mask:
-            cmd.extend(['-m', mask_temp_fname])
+            cmd.extend(['--mask', temp_mask])
         if args.gpu:
-            cmd.extend(['-g'])
+            cmd.extend(['--gpu'])
         if args.border:
             cmd.extend(['--border', args.border])
         if args.nocsf:
@@ -64,11 +68,11 @@ def main(args):
         # Convert images to NRRD
         outputs = []
         if args.out is not None:
-            outputs.append([output_temp_fname, args.out])
+            outputs.append([temp_out, args.out])
         if args.mask is not None:
-            outputs.append([mask_temp_fname, args.mask])
-        for tmp, out in outputs:
-            convert_image(tmp, out)
+            outputs.append([temp_mask, args.mask])
+        for temp_fname, args_fname in outputs:
+            convert_image(temp_fname, args_fname)
 
 
 if __name__ == "__main__":

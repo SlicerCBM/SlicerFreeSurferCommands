@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>297</width>
+    <width>300</width>
     <height>490</height>
    </rect>
   </property>
@@ -20,14 +20,14 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Input volume:</string>
+         <string>Input image:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="qMRMLNodeComboBox" name="inputSelector">
+       <widget class="qMRMLNodeComboBox" name="inputImageSelector">
         <property name="toolTip">
-         <string>Pick the input to the algorithm.</string>
+         <string>Select the image input volume to skullstrip.</string>
         </property>
         <property name="nodeTypes">
          <stringlist notr="true">
@@ -57,14 +57,14 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Output volume</string>
+         <string>Stripped image</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="qMRMLNodeComboBox" name="outputSelector">
+       <widget class="qMRMLNodeComboBox" name="outputImageSelector">
         <property name="toolTip">
-         <string>Pick the output to the algorithm.</string>
+         <string>Select the stripped image output volume.</string>
         </property>
         <property name="nodeTypes">
          <stringlist notr="true">
@@ -88,18 +88,18 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>Brain surface</string>
+         <string>Brain mask</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="qMRMLNodeComboBox" name="brainSurfaceSelector">
+       <widget class="qMRMLNodeComboBox" name="outputMaskSelector">
         <property name="toolTip">
-         <string>Result with inverted threshold will be written into this volume</string>
+         <string>Select the binary brain mask output volume.</string>
         </property>
         <property name="nodeTypes">
          <stringlist notr="true">
-          <string>vtkMRMLModelNode</string>
+          <string>vtkMRMLScalarVolumeNode</string>
          </stringlist>
         </property>
         <property name="showChildNodeTypes">
@@ -128,46 +128,63 @@
       <bool>false</bool>
      </property>
      <layout class="QFormLayout" name="formLayout_3">
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Invert threshold: </string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>Image threshold:</string>
+         <string>Use the GPU</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="ctkSliderWidget" name="imageThresholdSliderWidget">
+       <widget class="QCheckBox" name="gpuCheckBox">
         <property name="toolTip">
-         <string>Set threshold value for computing the output image. Voxels that have intensities lower than this value will set to zero.</string>
+         <string>Use the GPU.</string>
         </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
+        <property name="text">
+         <string/>
         </property>
-        <property name="minimum">
-         <double>-100.000000000000000</double>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Border threshold:</string>
         </property>
-        <property name="maximum">
-         <double>500.000000000000000</double>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="toolTip">
+         <string/>
         </property>
-        <property name="value">
-         <double>0.500000000000000</double>
+        <property name="text">
+         <string>Exclude CSF </string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="nocsfCheckBox">
+        <property name="toolTip">
+         <string>Exclude CSF from brain border.</string>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QCheckBox" name="invertOutputCheckBox">
+       <widget class="QSpinBox" name="borderThresholdSliderWidget">
         <property name="toolTip">
-         <string>If checked, values above threshold are set to 0. If unchecked, values below are set to 0.</string>
+         <string>Mask border threshold in mm. Default is 1.</string>
         </property>
-        <property name="text">
-         <string/>
+        <property name="suffix">
+         <string> mm</string>
+        </property>
+        <property name="minimum">
+         <number>-99</number>
+        </property>
+        <property name="value">
+         <number>1</number>
         </property>
        </widget>
       </item>
@@ -180,7 +197,7 @@
       <bool>false</bool>
      </property>
      <property name="toolTip">
-      <string>Run the algorithm.</string>
+      <string/>
      </property>
      <property name="text">
       <string>Apply</string>
@@ -210,11 +227,6 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ctkSliderWidget</class>
-   <extends>QWidget</extends>
-   <header>ctkSliderWidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>qMRMLNodeComboBox</class>
    <extends>QWidget</extends>
    <header>qMRMLNodeComboBox.h</header>
@@ -231,7 +243,7 @@
   <connection>
    <sender>FreeSurferSynthStripSkullStripScripted</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>inputSelector</receiver>
+   <receiver>inputImageSelector</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -247,7 +259,7 @@
   <connection>
    <sender>FreeSurferSynthStripSkullStripScripted</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>outputSelector</receiver>
+   <receiver>outputImageSelector</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -263,7 +275,7 @@
   <connection>
    <sender>FreeSurferSynthStripSkullStripScripted</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>brainSurfaceSelector</receiver>
+   <receiver>outputMaskSelector</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">

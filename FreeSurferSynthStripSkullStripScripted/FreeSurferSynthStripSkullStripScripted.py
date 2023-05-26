@@ -137,11 +137,12 @@ class FreeSurferSynthStripSkullStripScriptedWidget(ScriptedLoadableModuleWidget,
 
         # These connections ensure that whenever user changes some settings on the GUI, that is saved in the MRML scene
         # (in the selected parameter node).
-        self.ui.inputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
-        self.ui.outputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
-        self.ui.imageThresholdSliderWidget.connect("valueChanged(double)", self.updateParameterNodeFromGUI)
-        self.ui.invertOutputCheckBox.connect("toggled(bool)", self.updateParameterNodeFromGUI)
-        self.ui.brainSurfaceSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
+        self.ui.inputImageSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
+        self.ui.outputImageSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
+        self.ui.outputMaskSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
+        self.ui.gpuCheckBox.connect("toggled(bool)", self.updateParameterNodeFromGUI)
+        self.ui.borderThresholdSliderWidget.connect("valueChanged(double)", self.updateParameterNodeFromGUI)
+        self.ui.nocsfCheckBox.connect("toggled(bool)", self.updateParameterNodeFromGUI)
 
         # Buttons
         self.ui.applyButton.connect('clicked(bool)', self.onApplyButton)
@@ -233,18 +234,27 @@ class FreeSurferSynthStripSkullStripScriptedWidget(ScriptedLoadableModuleWidget,
         self._updatingGUIFromParameterNode = True
 
         # Update node selectors and sliders
-        self.ui.inputSelector.setCurrentNode(self._parameterNode.GetNodeReference("InputVolume"))
-        self.ui.outputSelector.setCurrentNode(self._parameterNode.GetNodeReference("OutputVolume"))
-        self.ui.brainSurfaceSelector.setCurrentNode(self._parameterNode.GetNodeReference("BrainSurface"))
-        self.ui.imageThresholdSliderWidget.value = float(self._parameterNode.GetParameter("Threshold"))
-        self.ui.invertOutputCheckBox.checked = (self._parameterNode.GetParameter("Invert") == "true")
+        self.ui.inputImageSelector.setCurrentNode(self._parameterNode.GetNodeReference("InputVolume"))
+        self.ui.outputImageSelector.setCurrentNode(self._parameterNode.GetNodeReference("OutputVolume"))
+        self.ui.outputMaskSelector.setCurrentNode(self._parameterNode.GetNodeReference("OutputMask"))
+        self.ui.gpuCheckBox.checked = (self._parameterNode.GetParameter("UseGPU") == "true")
+        self.ui.borderThresholdSliderWidget.value = float(self._parameterNode.GetParameter("BorderThreshold"))
+        self.ui.nocsfCheckBox.checked = (self._parameterNode.GetParameter("ExcludeCSF") == "true")
 
         # Update buttons states and tooltips
-        if self._parameterNode.GetNodeReference("InputVolume") and self._parameterNode.GetNodeReference("OutputVolume"):
-            self.ui.applyButton.toolTip = "Compute output volume"
-            self.ui.applyButton.enabled = True
+        if self._parameterNode.GetNodeReference("InputVolume"):
+            if self._parameterNode.GetNodeReference("OutputVolume"):
+                self.ui.applyButton.toolTip = "Compute output stripped image volume"
+                self.ui.applyButton.enabled = True
+            if self._parameterNode.GetNodeReference("OutputMask"):
+                self.ui.applyButton.toolTip = "Compute output binary brain mask volume"
+                self.ui.applyButton.enabled = True
+            if (self._parameterNode.GetNodeReference("OutputVolume") and
+                self._parameterNode.GetNodeReference("OutputMask")):
+                self.ui.applyButton.toolTip = "Compute output output image volume and binary brain mask volume"
+                self.ui.applyButton.enabled = True
         else:
-            self.ui.applyButton.toolTip = "Select input and output volume nodes"
+            self.ui.applyButton.toolTip = "Select input and output image volume or binary brain mask volume nodes"
             self.ui.applyButton.enabled = False
 
         # All the GUI updates are done
@@ -261,11 +271,12 @@ class FreeSurferSynthStripSkullStripScriptedWidget(ScriptedLoadableModuleWidget,
 
         wasModified = self._parameterNode.StartModify()  # Modify all properties in a single batch
 
-        self._parameterNode.SetNodeReferenceID("InputVolume", self.ui.inputSelector.currentNodeID)
-        self._parameterNode.SetNodeReferenceID("OutputVolume", self.ui.outputSelector.currentNodeID)
-        self._parameterNode.SetParameter("Threshold", str(self.ui.imageThresholdSliderWidget.value))
-        self._parameterNode.SetParameter("Invert", "true" if self.ui.invertOutputCheckBox.checked else "false")
-        self._parameterNode.SetNodeReferenceID("BrainSurface", self.ui.brainSurfaceSelector.currentNodeID)
+        self._parameterNode.SetNodeReferenceID("InputVolume", self.ui.inputImageSelector.currentNodeID)
+        self._parameterNode.SetNodeReferenceID("OutputVolume", self.ui.outputImageSelector.currentNodeID)
+        self._parameterNode.SetNodeReferenceID("OutputMask", self.ui.outputMaskSelector.currentNodeID)
+        self._parameterNode.SetParameter("UseGPU", "true" if self.ui.gpuCheckBox.checked else "false")
+        self._parameterNode.SetParameter("BorderThreshold", str(self.ui.borderThresholdSliderWidget.value))
+        self._parameterNode.SetParameter("ExcludeCSF", "true" if self.ui.nocsfCheckBox.checked else "false")
 
         self._parameterNode.EndModify(wasModified)
 
@@ -276,14 +287,12 @@ class FreeSurferSynthStripSkullStripScriptedWidget(ScriptedLoadableModuleWidget,
         with slicer.util.tryWithErrorDisplay("Failed to compute results.", waitCursor=True):
 
             # Compute output
-            self.logic.process(self.ui.inputSelector.currentNode(), self.ui.outputSelector.currentNode(),
-                               self.ui.imageThresholdSliderWidget.value, self.ui.invertOutputCheckBox.checked)
-
-            # Compute inverted output (if needed)
-            if self.ui.brainSurfaceSelector.currentNode():
-                # If additional output volume is selected then result with inverted threshold is written there
-                self.logic.process(self.ui.inputSelector.currentNode(), self.ui.brainSurfaceSelector.currentNode(),
-                                   self.ui.imageThresholdSliderWidget.value, not self.ui.invertOutputCheckBox.checked, showResult=False)
+            self.logic.process(self.ui.inputImageSelector.currentNode(),
+                               self.ui.outputImageSelector.currentNode(),
+                               self.ui.outputMaskSelector.currentNode(),
+                               self.ui.gpuCheckBox.checked,
+                               self.ui.borderThresholdSliderWidget.value,
+                               self.ui.nocsfCheckBox.checked)
 
 
 #
@@ -310,15 +319,20 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
         """
         Initialize parameter node with default settings.
         """
-        if not parameterNode.GetParameter("Threshold"):
-            parameterNode.SetParameter("Threshold", "100.0")
-        if not parameterNode.GetParameter("Invert"):
-            parameterNode.SetParameter("Invert", "false")
+        if not parameterNode.GetParameter("UseGPU"):
+            parameterNode.SetParameter("UseGPU", "false")
+        if not parameterNode.GetParameter("BorderThreshold"):
+            parameterNode.SetParameter("BorderThreshold", "1")
+        if not parameterNode.GetParameter("ExcludeCSF"):
+            parameterNode.SetParameter("ExcludeCSF", "false")
 
-    def process(self, inputVolume, outputVolume, imageThreshold, invert=False, showResult=True):
+    def process(self, inputImageVolume,
+                outputImageVolume=None, outputMaskVolume=None,
+                useGPU=False, borderThreshold=1, excludeCSF=False):
         """
         Run the processing algorithm.
         Can be used without GUI widget.
+        # FIXME: Update documentation
         :param inputVolume: volume to be thresholded
         :param outputVolume: thresholding result
         :param imageThreshold: values above/below this threshold will be set to 0
@@ -326,8 +340,10 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
         :param showResult: show output volume in slice viewers
         """
 
-        if not inputVolume or not outputVolume:
-            raise ValueError("Input or output volume is invalid")
+        if not inputImageVolume:
+            raise ValueError("Input volume is undefined")
+        if not outputImageVolume and not outputMaskVolume:
+            raise ValueError("Output image or mask volume is undefined")
 
         import time
         startTime = time.time()
@@ -336,7 +352,7 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
         import os
         from pathlib import Path
         import qt
-        import subprocess
+        # import subprocess
 
         temp_dir = qt.QTemporaryDir()
         temp_path = Path(temp_dir.path())
@@ -351,7 +367,7 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
             print(temp_image)
 
         # Convert image to FreeSurfer mgz format
-        slicer.util.exportNode(inputVolume, temp_image)
+        slicer.util.exportNode(inputImageVolume, temp_image)
 
         if DEBUG:
             os.listdir(temp_path)
@@ -368,28 +384,30 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
 
         args = [fs_env['FREESURFER_HOME'] + '/bin/mri_synthstrip']
         args.extend(['--image', temp_image])
-        if outputVolume:
+        if outputImageVolume:
             args.extend(['--out', temp_out])
-        # if args.mask:
-        #     cmd.extend(['--mask', temp_mask])
-        # if args.gpu:
-        #     cmd.extend(['--gpu'])
-        # if args.border:
-        #     cmd.extend(['--border', args.border])
-        # if args.nocsf:
-        #     cmd.extend(['--no-csf'])
-        print("Command:", " ".join(args))
-        #subprocess.check_output(cmd, env=fs_env)
+        if outputMaskVolume:
+            args.extend(['--mask', temp_mask])
+        if useGPU:
+            args.extend(['--gpu'])
+        if borderThreshold != 1:
+            args.extend(['--border', str(borderThreshold)])
+        if excludeCSF:
+            args.extend(['--no-csf'])
+        print("Command:", args)
+        #subprocess.check_output(args, env=fs_env)
         proc = slicer.util.launchConsoleProcess(args)
         slicer.util.logProcessOutput(proc)
 
         # Load temporary mgz images back into nodes
-        if outputVolume:
+        if outputImageVolume:
             img = slicer.util.loadVolume(temp_out)
-            outputVolume.CopyContent(img)
+            outputImageVolume.CopyContent(img)
             slicer.mrmlScene.RemoveNode(img)
-        # if mask:
-        #     raise NotImplementedError
+        if outputMaskVolume:
+            img = slicer.util.loadVolume(temp_mask)
+            outputMaskVolume.CopyContent(img)
+            slicer.mrmlScene.RemoveNode(img)
 
         stopTime = time.time()
         logging.info(f'Processing completed in {stopTime-startTime:.2f} seconds')

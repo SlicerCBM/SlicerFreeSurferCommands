@@ -7,6 +7,8 @@ import slicer
 from slicer.ScriptedLoadableModule import *
 from slicer.util import VTKObservationMixin
 
+DEBUG = True
+
 
 #
 # FreeSurferSynthStripSkullStripScripted
@@ -19,10 +21,10 @@ class FreeSurferSynthStripSkullStripScripted(ScriptedLoadableModule):
 
     def __init__(self, parent):
         ScriptedLoadableModule.__init__(self, parent)
-        self.parent.title = "FreeSurferSynthStripSkullStripScripted"  # TODO: make this more human readable by adding spaces
-        self.parent.categories = ["Examples"]  # TODO: set categories (folders where the module shows up in the module selector)
-        self.parent.dependencies = []  # TODO: add here list of module names that this module requires
-        self.parent.contributors = ["John Doe (AnyWare Corp.)"]  # TODO: replace with "Firstname Lastname (Organization)"
+        self.parent.title = "FreeSurfer SynthStrip Skull Strip (Scripted)"
+        self.parent.categories = ["Segmentation"]
+        self.parent.dependencies = []
+        self.parent.contributors = ["Benjamin Zwick (ISML)"]
         # TODO: update with short description of the module and a link to online module documentation
         self.parent.helpText = """
 This is an example of scripted loadable module bundled in an extension.
@@ -30,8 +32,7 @@ See more information in <a href="https://github.com/organization/projectname#Fre
 """
         # TODO: replace with organization, grant and thanks
         self.parent.acknowledgementText = """
-This file was originally developed by Jean-Christophe Fillion-Robin, Kitware Inc., Andras Lasso, PerkLab,
-and Steve Pieper, Isomics, Inc. and was partially funded by NIH grant 3P41RR013218-12S1.
+This module uses FreeSurfer's MRI watershed skull strip command...
 """
 
         # Additional initialization step after application startup is complete
@@ -140,7 +141,7 @@ class FreeSurferSynthStripSkullStripScriptedWidget(ScriptedLoadableModuleWidget,
         self.ui.outputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
         self.ui.imageThresholdSliderWidget.connect("valueChanged(double)", self.updateParameterNodeFromGUI)
         self.ui.invertOutputCheckBox.connect("toggled(bool)", self.updateParameterNodeFromGUI)
-        self.ui.invertedOutputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
+        self.ui.brainSurfaceSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
 
         # Buttons
         self.ui.applyButton.connect('clicked(bool)', self.onApplyButton)
@@ -234,7 +235,7 @@ class FreeSurferSynthStripSkullStripScriptedWidget(ScriptedLoadableModuleWidget,
         # Update node selectors and sliders
         self.ui.inputSelector.setCurrentNode(self._parameterNode.GetNodeReference("InputVolume"))
         self.ui.outputSelector.setCurrentNode(self._parameterNode.GetNodeReference("OutputVolume"))
-        self.ui.invertedOutputSelector.setCurrentNode(self._parameterNode.GetNodeReference("OutputVolumeInverse"))
+        self.ui.brainSurfaceSelector.setCurrentNode(self._parameterNode.GetNodeReference("BrainSurface"))
         self.ui.imageThresholdSliderWidget.value = float(self._parameterNode.GetParameter("Threshold"))
         self.ui.invertOutputCheckBox.checked = (self._parameterNode.GetParameter("Invert") == "true")
 
@@ -264,7 +265,7 @@ class FreeSurferSynthStripSkullStripScriptedWidget(ScriptedLoadableModuleWidget,
         self._parameterNode.SetNodeReferenceID("OutputVolume", self.ui.outputSelector.currentNodeID)
         self._parameterNode.SetParameter("Threshold", str(self.ui.imageThresholdSliderWidget.value))
         self._parameterNode.SetParameter("Invert", "true" if self.ui.invertOutputCheckBox.checked else "false")
-        self._parameterNode.SetNodeReferenceID("OutputVolumeInverse", self.ui.invertedOutputSelector.currentNodeID)
+        self._parameterNode.SetNodeReferenceID("BrainSurface", self.ui.brainSurfaceSelector.currentNodeID)
 
         self._parameterNode.EndModify(wasModified)
 
@@ -279,9 +280,9 @@ class FreeSurferSynthStripSkullStripScriptedWidget(ScriptedLoadableModuleWidget,
                                self.ui.imageThresholdSliderWidget.value, self.ui.invertOutputCheckBox.checked)
 
             # Compute inverted output (if needed)
-            if self.ui.invertedOutputSelector.currentNode():
+            if self.ui.brainSurfaceSelector.currentNode():
                 # If additional output volume is selected then result with inverted threshold is written there
-                self.logic.process(self.ui.inputSelector.currentNode(), self.ui.invertedOutputSelector.currentNode(),
+                self.logic.process(self.ui.inputSelector.currentNode(), self.ui.brainSurfaceSelector.currentNode(),
                                    self.ui.imageThresholdSliderWidget.value, not self.ui.invertOutputCheckBox.checked, showResult=False)
 
 
@@ -332,16 +333,63 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
         startTime = time.time()
         logging.info('Processing started')
 
-        # Compute the thresholded output volume using the "Threshold Scalar Volume" CLI module
-        cliParams = {
-            'InputVolume': inputVolume.GetID(),
-            'OutputVolume': outputVolume.GetID(),
-            'ThresholdValue': imageThreshold,
-            'ThresholdType': 'Above' if invert else 'Below'
-        }
-        cliNode = slicer.cli.run(slicer.modules.thresholdscalarvolume, None, cliParams, wait_for_completion=True, update_display=showResult)
-        # We don't need the CLI module node anymore, remove it to not clutter the scene with it
-        slicer.mrmlScene.RemoveNode(cliNode)
+        import os
+        from pathlib import Path
+        import qt
+        import subprocess
+
+        temp_dir = qt.QTemporaryDir()
+        temp_path = Path(temp_dir.path())
+        if DEBUG:
+            print("temp_path:", temp_path)
+
+        # Temporary image files in FreeSurfer format
+        temp_image = str(temp_path / 'input.mgz')
+        temp_out = str(temp_path / 'stripped.mgz')
+        temp_mask = str(temp_path / 'mask.mgz')
+        if DEBUG:
+            print(temp_image)
+
+        # Convert image to FreeSurfer mgz format
+        slicer.util.exportNode(inputVolume, temp_image)
+
+        if DEBUG:
+            os.listdir(temp_path)
+
+        fs_env = os.environ.copy()
+        if DEBUG:
+            print(fs_env)
+        # Use system Python environment
+        fs_env['PYTHONHOME'] = ''
+        if DEBUG:
+            print("PYTHONHOME:", fs_env['PYTHONHOME'])
+            print("PYTHONPATH:", fs_env['PYTHONPATH'])
+        print("FREESURFER_HOME:", fs_env['FREESURFER_HOME'])
+
+        args = [fs_env['FREESURFER_HOME'] + '/bin/mri_synthstrip']
+        args.extend(['--image', temp_image])
+        if outputVolume:
+            args.extend(['--out', temp_out])
+        # if args.mask:
+        #     cmd.extend(['--mask', temp_mask])
+        # if args.gpu:
+        #     cmd.extend(['--gpu'])
+        # if args.border:
+        #     cmd.extend(['--border', args.border])
+        # if args.nocsf:
+        #     cmd.extend(['--no-csf'])
+        print("Command:", " ".join(args))
+        #subprocess.check_output(cmd, env=fs_env)
+        proc = slicer.util.launchConsoleProcess(args)
+        slicer.util.logProcessOutput(proc)
+
+        # Load temporary mgz images back into nodes
+        if outputVolume:
+            img = slicer.util.loadVolume(temp_out)
+            outputVolume.CopyContent(img)
+            slicer.mrmlScene.RemoveNode(img)
+        # if mask:
+        #     raise NotImplementedError
 
         stopTime = time.time()
         logging.info(f'Processing completed in {stopTime-startTime:.2f} seconds')

@@ -382,7 +382,7 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
             outputImageVolume.CopyContent(img)
             slicer.mrmlScene.RemoveNode(img)
         if outputMaskVolume:
-            img = slicer.util.loadVolume(temp_mask)
+            img = slicer.util.loadLabelVolume(temp_mask)
             outputMaskVolume.CopyContent(img)
             slicer.mrmlScene.RemoveNode(img)
 

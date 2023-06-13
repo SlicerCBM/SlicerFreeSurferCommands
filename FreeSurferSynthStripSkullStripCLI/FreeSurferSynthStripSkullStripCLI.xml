@@ -15,7 +15,7 @@
     https://doi.org/10.1016/j.neuroimage.2022.119474]]>
   </description>
   <version>0.1.0.</version>
-  <documentation-url>https://github.com/SlicerCBM/SlicerFreeSurferCommands/blob/main/FreeSurferSynthStripSkullStrip/README.md</documentation-url>
+  <documentation-url>https://github.com/SlicerCBM/SlicerFreeSurferCommands/blob/main/FreeSurferSynthStripSkullStripCLI/README.md</documentation-url>
   <license/>
   <contributor>Benjamin Zwick (ISML)</contributor>
   <acknowledgements><![CDATA[]]>

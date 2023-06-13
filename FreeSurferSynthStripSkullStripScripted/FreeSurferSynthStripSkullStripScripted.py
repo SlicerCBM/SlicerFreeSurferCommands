@@ -376,15 +376,17 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
         proc = slicer.util.launchConsoleProcess(args)
         slicer.util.logProcessOutput(proc)
 
-        # Load temporary mgz images back into nodes
+        # Load temporary files back into nodes
         if outputImageVolume:
-            img = slicer.util.loadVolume(temp_out)
-            outputImageVolume.CopyContent(img)
-            slicer.mrmlScene.RemoveNode(img)
+            storage = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVolumeArchetypeStorageNode')
+            storage.SetFileName(temp_out)
+            storage.ReadData(outputImageVolume)
+            slicer.mrmlScene.RemoveNode(storage)
         if outputMaskVolume:
-            img = slicer.util.loadLabelVolume(temp_mask)
-            outputMaskVolume.CopyContent(img)
-            slicer.mrmlScene.RemoveNode(img)
+            storage = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVolumeArchetypeStorageNode')
+            storage.SetFileName(temp_mask)
+            storage.ReadData(outputMaskVolume)
+            slicer.mrmlScene.RemoveNode(storage)
 
         stopTime = time.time()
         logging.info(f'Processing completed in {stopTime-startTime:.2f} seconds')

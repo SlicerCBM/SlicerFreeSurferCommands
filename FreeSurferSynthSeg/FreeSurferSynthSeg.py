@@ -319,7 +319,7 @@ class FreeSurferSynthSegLogic(ScriptedLoadableModuleLogic):
         if not parameterNode.GetParameter("CT"):
             parameterNode.SetParameter("CT", "false")
 
-    def process(self, input, output,
+    def process(self, inputNode, outputNode,
                 parc=False, robust=False, fast=False,
                 vol=None, qc=None, post=None, resample=None, crop=None,
                 threads=None, cpu=False, v1=False, ct=False):
@@ -332,9 +332,9 @@ class FreeSurferSynthSegLogic(ScriptedLoadableModuleLogic):
         See https://surfer.nmr.mgh.harvard.edu/fswiki/SynthSeg
         """
 
-        if not input:
+        if not inputNode:
             raise ValueError("Input volume is undefined")
-        if not output:
+        if not outputNode:
             raise ValueError("Output segmentation is undefined")
 
         import time
@@ -354,7 +354,7 @@ class FreeSurferSynthSegLogic(ScriptedLoadableModuleLogic):
         temp_resample = str(temp_path / 'resample.mgz')
 
         # Convert image to FreeSurfer mgz format
-        slicer.util.exportNode(input, temp_input)
+        slicer.util.exportNode(inputNode, temp_input)
 
         fs_env = os.environ.copy()
         # Use system Python environment
@@ -363,7 +363,7 @@ class FreeSurferSynthSegLogic(ScriptedLoadableModuleLogic):
 
         args = [fs_env['FREESURFER_HOME'] + '/bin/mri_synthseg']
         args.extend(['--i', temp_input])
-        if output:
+        if outputNode:
             args.extend(['--o', temp_output])
         if parc:
             args.extend(['--parc'])
@@ -397,17 +397,20 @@ class FreeSurferSynthSegLogic(ScriptedLoadableModuleLogic):
         # Load the FreeSurfer color table
         # See: https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/AnatomicalROI/FreeSurferColorLUT
         color_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'FreeSurferColorLUT.ctbl')
-        color_table = slicer.util.loadColorTable(color_file)
+        colorTableNode = slicer.util.loadColorTable(color_file)
 
-        # Load temporary mgz images back into nodes
-        if output:
-            img = slicer.util.loadLabelVolume(temp_output, properties={'colorNodeID': color_table.GetID()})
-            output.CopyContent(img)
-            slicer.mrmlScene.RemoveNode(img)
+        # Load temporary files back into nodes
+        if outputNode:
+            storage = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVolumeArchetypeStorageNode')
+            storage.SetFileName(temp_output)
+            storage.ReadData(outputNode)
+            slicer.mrmlScene.RemoveNode(storage)
+            outputNode.GetDisplayNode().SetAndObserveColorNodeID(colorTableNode.GetID())
         if resample:
-            img = slicer.util.loadVolume(temp_resample)
-            resample.CopyContent(img)
-            slicer.mrmlScene.RemoveNode(img)
+            storage = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVolumeArchetypeStorageNode')
+            storage.SetFileName(temp_resample)
+            storage.ReadData(resample)
+            slicer.mrmlScene.RemoveNode(storage)
 
         stopTime = time.time()
         logging.info(f'Processing completed in {stopTime-startTime:.2f} seconds')

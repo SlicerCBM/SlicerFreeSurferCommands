@@ -3,8 +3,8 @@
 Run [FreeSurfer](https://freesurfer.net) commands using [3D Slicer](https://www.slicer.org)'s graphical user interface.
 
 Features include:
-- (TODO) segmentation
-- skull stripping
+- segmentation (SynthSeg)
+- skull stripping (SynthStrip)
 
 ![](Screenshot01.png)
 
@@ -14,7 +14,7 @@ The FreeSurfer Commands extension for 3D Slicer contains the following modules:
 
 - **(TODO) FreeSurfer MRI Watershed Skull Strip:** Skull stripping using FreeSurfer's [MRI watershed (FSW) algorithm](https://surfer.nmr.mgh.harvard.edu/fswiki/mri_watershed).
 
-- **(TODO) FreeSurfer SynthSeg Brain MRI Segmentation:** Brain MRI segmentation using [SynthSeg](https://github.com/BBillot/SynthSeg) packaged in [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/fswiki/SynthSeg)
+- **[FreeSurfer SynthSeg Brain MRI Segmentation](FreeSurferSynthSeg):** Brain MRI segmentation using [SynthSeg](https://github.com/BBillot/SynthSeg) packaged in [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/fswiki/SynthSeg).
 
 - **[FreeSurfer SynthStrip Skull Strip (CLI)](FreeSurferSynthStripSkullStrip):** Skull stripping using FreeSurfer's [SynthStrip](https://surfer.nmr.mgh.harvard.edu/docs/synthstrip) tool implemented as a Python CLI module.
 

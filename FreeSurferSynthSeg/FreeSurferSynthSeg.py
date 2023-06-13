@@ -394,9 +394,14 @@ class FreeSurferSynthSegLogic(ScriptedLoadableModuleLogic):
         proc = slicer.util.launchConsoleProcess(args)
         slicer.util.logProcessOutput(proc)
 
+        # Load the FreeSurfer color table
+        # See: https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/AnatomicalROI/FreeSurferColorLUT
+        color_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'FreeSurferColorLUT.ctbl')
+        color_table = slicer.util.loadColorTable(color_file)
+
         # Load temporary mgz images back into nodes
         if output:
-            img = slicer.util.loadVolume(temp_output)
+            img = slicer.util.loadLabelVolume(temp_output, properties={'colorNodeID': color_table.GetID()})
             output.CopyContent(img)
             slicer.mrmlScene.RemoveNode(img)
         if resample:

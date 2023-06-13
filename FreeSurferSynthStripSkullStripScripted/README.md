@@ -25,7 +25,7 @@ https://doi.org/10.1016/j.neuroimage.2022.119474
 
 ### Advanced
 
-Advanced parameters are described in the [SynthStrip documentation](https://surfer.nmr.mgh.harvard.edu/fswiki/synthstrip).
+Advanced parameters are described in the [SynthStrip documentation](https://surfer.nmr.mgh.harvard.edu/docs/synthstrip/).
 
 ## Tutorial
 

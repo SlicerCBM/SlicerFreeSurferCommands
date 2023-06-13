@@ -21,7 +21,7 @@ class FreeSurferSynthStripSkullStripScripted(ScriptedLoadableModule):
 
     def __init__(self, parent):
         ScriptedLoadableModule.__init__(self, parent)
-        self.parent.title = "FreeSurfer SynthStrip Skull Strip (Scripted)"
+        self.parent.title = "FreeSurfer SynthStrip Skull Strip"
         self.parent.categories = ["Segmentation"]
         self.parent.dependencies = []
         self.parent.contributors = ["Benjamin Zwick (ISML)"]

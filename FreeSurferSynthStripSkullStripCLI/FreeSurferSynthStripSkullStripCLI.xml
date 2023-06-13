@@ -2,7 +2,7 @@
 <executable>
   <category>Segmentation</category>
   <index>0</index>
-  <title>FreeSurfer SynthStrip Skull Strip</title>
+  <title>FreeSurfer SynthStrip Skull Strip (CLI)</title>
   <description><![CDATA[Skull stripping for head studies using SynthStrip from FreeSurfer.
 
     For a detailed description of SynthStrip please refer to its documentation here:

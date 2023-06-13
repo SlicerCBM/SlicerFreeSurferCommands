@@ -30,6 +30,9 @@ You must have FreeSurfer (version 7.3.2 or higher) installed on your computer
 and have the `$FREESURFER_HOME` environment variable set correctly.
 Please refer to the [FreeSurfer](https://freesurfer.net) documentation for further details.
 
+The FreeSurfer Commands extension for 3D Slicer has been tested on the following operating systems:
+- Debian GNU/Linux 12 (bookworm) with 3D Slicer 5.2.2
+
 ## Feature Requests
 
 Please open an [issue](https://github.com/SlicerCBM/SlicerFreeSurferCommands/issues) if you would like to suggest a new feature or FreeSurfer command to be added.

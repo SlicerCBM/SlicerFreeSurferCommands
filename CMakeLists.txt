@@ -9,7 +9,7 @@ set(EXTENSION_CATEGORY "Segmentation")
 set(EXTENSION_CONTRIBUTORS "Benjamin Zwick")
 set(EXTENSION_DESCRIPTION "Run FreeSurfer commands within 3D Slicer.")
 set(EXTENSION_ICONURL "https://raw.githubusercontent.com/SlicerCBM/SlicerFreeSurferCommands/main/SlicerFreeSurferCommands.png")
-set(EXTENSION_SCREENSHOTURLS "https://raw.githubusercontent.com/SlicerCBM/SlicerFreeSurferCommands/main/Screenshot01.png")
+set(EXTENSION_SCREENSHOTURLS "https://raw.githubusercontent.com/SlicerCBM/SlicerFreeSurferCommands/main/Screenshot01.png" "https://raw.githubusercontent.com/SlicerCBM/SlicerFreeSurferCommands/main/Screenshot02.png")
 set(EXTENSION_DEPENDS "NA") # Specified as a list or "NA" if no dependencies
 
 #-----------------------------------------------------------------------------

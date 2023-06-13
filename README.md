@@ -6,7 +6,11 @@ Features include:
 - segmentation (SynthSeg)
 - skull stripping (SynthStrip)
 
-![](Screenshot01.png)
+FreeSurfer SynthStrip Skull Strip
+![FreeSurfer SynthStrip Skull Strip](Screenshot01.png)
+
+FreeSurfer SynthSeg Brain MRI Segmentation
+![FreeSurfer SynthSeg Brain MRI Segmentation](Screenshot02.png)
 
 ## Modules
 

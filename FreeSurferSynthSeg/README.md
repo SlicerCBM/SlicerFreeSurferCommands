@@ -1,1 +1,1 @@
-# FreeSurfer SynthSeg
+# FreeSurfer SynthSeg Brain MRI Segmentation

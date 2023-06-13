@@ -19,7 +19,7 @@ class FreeSurferSynthSeg(ScriptedLoadableModule):
 
     def __init__(self, parent):
         ScriptedLoadableModule.__init__(self, parent)
-        self.parent.title = "FreeSurfer SynthSeg"
+        self.parent.title = "FreeSurfer SynthSeg Brain MRI Segmentation"
         self.parent.categories = ["Segmentation"]
         self.parent.dependencies = []
         self.parent.contributors = ["Benjamin Zwick (ISML)"]

@@ -20,6 +20,7 @@ include(${Slicer_USE_FILE})
 #-----------------------------------------------------------------------------
 # Extension modules
 # add_subdirectory(FreeSurferMRIWatershedSkullStrip) # TODO: not implemented yet
+add_subdirectory(FreeSurferSynthSeg)
 add_subdirectory(FreeSurferSynthStripSkullStrip)
 add_subdirectory(FreeSurferSynthStripSkullStripScripted)
 ## NEXT_MODULE

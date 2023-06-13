@@ -26,7 +26,7 @@ class FreeSurferSynthSeg(ScriptedLoadableModule):
         # TODO: update with short description of the module and a link to online module documentation
         self.parent.helpText = """Segmentation of brain MRI scans using SynthSeg from FreeSurfer.
 
-For a detailed description of SynthSeg please refer to its documentation <a href="https://surfer.nmr.mgh.harvard.edu/docs/synthseg">here</a>.
+For a detailed description of SynthSeg please refer to its documentation <a href="https://surfer.nmr.mgh.harvard.edu/fswiki/SynthSeg">here</a>.
 
 See more information in <a href="https://github.com/SlicerCBM/SlicerFreeSurferCommands/tree/main/FreeSurferSynthSeg/README.md">module documentation</a>.
 """

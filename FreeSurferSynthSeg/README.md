@@ -2,7 +2,7 @@
 
 Segmentation of brain MRI scans using [SynthSeg](https://github.com/BBillot/SynthSeg) packaged in [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/fswiki/SynthSeg).
 
-For a detailed description of SynthSeg please refer to its documentation <a href="https://surfer.nmr.mgh.harvard.edu/docs/synthseg">here</a>.
+For a detailed description of SynthSeg please refer to its documentation <a href="https://surfer.nmr.mgh.harvard.edu/fswiki/SynthSeg">here</a>.
 
 If you use SynthSeg in your analysis, please cite:
 

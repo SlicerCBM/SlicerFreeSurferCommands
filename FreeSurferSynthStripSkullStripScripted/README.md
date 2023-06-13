@@ -1,0 +1,1 @@
+# FreeSurfer SynthStrip Skull Strip

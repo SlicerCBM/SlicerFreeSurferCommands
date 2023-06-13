@@ -26,13 +26,20 @@ class FreeSurferSynthStripSkullStripScripted(ScriptedLoadableModule):
         self.parent.dependencies = []
         self.parent.contributors = ["Benjamin Zwick (ISML)"]
         # TODO: update with short description of the module and a link to online module documentation
-        self.parent.helpText = """
-This is an example of scripted loadable module bundled in an extension.
-See more information in <a href="https://github.com/organization/projectname#FreeSurferSynthStripSkullStripScripted">module documentation</a>.
+        self.parent.helpText = """Skull stripping for head studies using SynthStrip from FreeSurfer.
+
+For a detailed description of SynthStrip please refer to its documentation <a href="https://surfer.nmr.mgh.harvard.edu/docs/synthstrip">here</a>.
+
+See more information in <a href="https://github.com/SlicerCBM/SlicerFreeSurferCommands/tree/main/FreeSurferSynthStripSkullStripScripted/README.md">module documentation</a>.
 """
         # TODO: replace with organization, grant and thanks
         self.parent.acknowledgementText = """
-This module uses FreeSurfer's MRI watershed skull strip command...
+This module uses FreeSurfer's SynthStrip command.
+If you use SynthStrip in your analysis, please cite:
+SynthStrip: Skull-Stripping for Any Brain Image
+Andrew Hoopes, Jocelyn S. Mora, Adrian V. Dalca, Bruce Fischl*, Malte Hoffmann* (*equal contribution)
+NeuroImage 260, 2022, 119474
+https://doi.org/10.1016/j.neuroimage.2022.119474
 """
 
         # Additional initialization step after application startup is complete
@@ -420,5 +427,6 @@ class FreeSurferSynthStripSkullStripScriptedTest(ScriptedLoadableModuleTest):
         self.delayDisplay("Starting the test")
 
         # TODO: add tests...
+        self.delayDisplay("This test does nothing!")
 
         self.delayDisplay('Test passed')

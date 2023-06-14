@@ -303,8 +303,8 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
         if not parameterNode.GetParameter("ExcludeCSF"):
             parameterNode.SetParameter("ExcludeCSF", "false")
 
-    def process(self, inputImageVolume,
-                outputImageVolume=None, outputMaskVolume=None,
+    def process(self, inputImageNode,
+                outputImageNode=None, outputMaskNode=None,
                 useGPU=False, borderThreshold=1, excludeCSF=False):
         """
         Run the processing algorithm.
@@ -317,9 +317,9 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
         :param showResult: show output volume in slice viewers
         """
 
-        if not inputImageVolume:
+        if not inputImageNode:
             raise ValueError("Input volume is undefined")
-        if not outputImageVolume and not outputMaskVolume:
+        if not outputImageNode and not outputMaskNode:
             raise ValueError("Output image or mask volume is undefined")
 
         import time
@@ -343,8 +343,8 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
         if DEBUG:
             print(temp_image)
 
-        # Convert image to FreeSurfer mgz format
-        slicer.util.exportNode(inputImageVolume, temp_image)
+        # Convert image to FreeSurfer format
+        slicer.util.exportNode(inputImageNode, temp_image)
 
         if DEBUG:
             os.listdir(temp_path)
@@ -361,9 +361,9 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
 
         args = [fs_env['FREESURFER_HOME'] + '/bin/mri_synthstrip']
         args.extend(['--image', temp_image])
-        if outputImageVolume:
+        if outputImageNode:
             args.extend(['--out', temp_out])
-        if outputMaskVolume:
+        if outputMaskNode:
             args.extend(['--mask', temp_mask])
         if useGPU:
             args.extend(['--gpu'])
@@ -376,17 +376,30 @@ class FreeSurferSynthStripSkullStripScriptedLogic(ScriptedLoadableModuleLogic):
         proc = slicer.util.launchConsoleProcess(args)
         slicer.util.logProcessOutput(proc)
 
+        # Create color table for brain mask (mask will have the 'tissue' label with value '1')
+        colorTableNode = slicer.mrmlScene.GetFirstNodeByName('GenericAnatomyColors')
+
         # Load temporary files back into nodes
-        if outputImageVolume:
+        if outputImageNode:
             storage = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVolumeArchetypeStorageNode')
             storage.SetFileName(temp_out)
-            storage.ReadData(outputImageVolume)
+            storage.ReadData(outputImageNode)
             slicer.mrmlScene.RemoveNode(storage)
-        if outputMaskVolume:
-            storage = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVolumeArchetypeStorageNode')
-            storage.SetFileName(temp_mask)
-            storage.ReadData(outputMaskVolume)
-            slicer.mrmlScene.RemoveNode(storage)
+        if outputMaskNode:
+            if outputMaskNode.GetTypeDisplayName() == 'LabelMapVolume':
+                storage = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVolumeArchetypeStorageNode')
+                storage.SetFileName(temp_mask)
+                storage.ReadData(outputMaskNode)
+                slicer.mrmlScene.RemoveNode(storage)
+                if outputMaskNode.GetDisplayNode() is None:
+                    outputMaskNode.CreateDefaultDisplayNodes()
+                outputMaskNode.GetDisplayNode().SetAndObserveColorNodeID(colorTableNode.GetID())
+            elif outputMaskNode.GetTypeDisplayName() == 'Segmentation':
+                labelmap = slicer.util.loadLabelVolume(temp_mask, properties={'colorNodeID': colorTableNode.GetID()})
+                slicer.modules.segmentations.logic().ImportLabelmapToSegmentationNode(labelmap, outputMaskNode)
+                slicer.mrmlScene.RemoveNode(labelmap)
+            else:
+                raise NotImplementedError
 
         stopTime = time.time()
         logging.info(f'Processing completed in {stopTime-startTime:.2f} seconds')

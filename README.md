@@ -6,12 +6,6 @@ Features include:
 - segmentation (SynthSeg)
 - skull stripping (SynthStrip)
 
-FreeSurfer SynthStrip Skull Strip
-![FreeSurfer SynthStrip Skull Strip](Screenshot01.png)
-
-FreeSurfer SynthSeg Brain MRI Segmentation
-![FreeSurfer SynthSeg Brain MRI Segmentation](Screenshot02.png)
-
 ## Modules
 
 The FreeSurfer Commands extension for 3D Slicer contains the following modules:
@@ -20,9 +14,13 @@ The FreeSurfer Commands extension for 3D Slicer contains the following modules:
 
 - **[FreeSurfer SynthSeg Brain MRI Segmentation](FreeSurferSynthSeg):** Brain MRI segmentation using [SynthSeg](https://github.com/BBillot/SynthSeg) packaged in [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/fswiki/SynthSeg) as the `mri_synthseg` command.
 
+![FreeSurfer SynthSeg Brain MRI Segmentation](Screenshot02.png)
+
 <!-- - ~~**[FreeSurfer SynthStrip Skull Strip (CLI) (deprecated)](FreeSurferSynthStripSkullStripCLI):** Skull stripping using FreeSurfer's [SynthStrip](https://surfer.nmr.mgh.harvard.edu/docs/synthstrip) tool implemented as a Python CLI module. This module is no longer being actively developed; please use the equivalent scripted module instead.~~ -->
 
 - **[FreeSurfer SynthStrip Skull Strip](FreeSurferSynthStripSkullStripScripted):** Skull stripping using FreeSurfer's [SynthStrip](https://surfer.nmr.mgh.harvard.edu/docs/synthstrip) tool through the `mri_synthstrip` command.
+
+![FreeSurfer SynthStrip Skull Strip](Screenshot01.png)
 
 ## Installation
 

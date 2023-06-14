@@ -20,9 +20,9 @@ For the robust mode (see below), please cite:
 
 ### Output
 
-- **Output segmentation:** Labelmap where the output segmentations will be saved.
+- **Output segmentation:** Labelmap or Segmentation where the output segmentations will be saved. By default, this will use the [FreeSurferColorLUT](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/AnatomicalROI/FreeSurferColorLUT) color table (see [here](https://github.com/SlicerCBM/SlicerFreeSurferCommands/blob/main/FreeSurferSynthSeg/FreeSurferColorLUT.ctbl) for the color table in 3D Slicer format).
 
-- **Resampled volume (optional):** In order to return segmentations at 1mm resolution, the input images are internally resampled (except if they already are at 1mm). Use this optional scalar volume to save the resampled image.
+- **Resampled volume (optional):** In order to return segmentations at 1mm resolution, the input images are internally resampled (except if they already are at 1mm). Use this optional scalar volume to save the resampled image. If the output segmentation is of type 'Segmentation' (not 'LabelMap') the resampled volume will be set as the segmentation's source geometry.
 
 ### Advanced
 
@@ -36,10 +36,12 @@ Advanced parameters are described in the [SynthSeg documentation](https://surfer
 
 3. Set the following parameters:
     - Input volume: MRHead
-    - Output segmentation: Create new LabelMapVolume
+    - Output segmentation: Create new LabelMapVolume or Segmentation
 
 4. Set advanced parameters as desired.
 
 5. Click Apply.
 
-The segmentation will be saved in the new LabelMapVolume.
+The segmentation will be saved in the new LabelMapVolume or Segmentation.
+
+![FreeSurfer SynthSeg Brain MRI Segmentation](https://raw.githubusercontent.com/SlicerCBM/SlicerFreeSurferCommands/main/Screenshot02.png)

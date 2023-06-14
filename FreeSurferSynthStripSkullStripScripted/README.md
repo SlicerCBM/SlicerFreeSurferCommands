@@ -43,3 +43,5 @@ Advanced parameters are described in the [SynthStrip documentation](https://surf
 5. Click Apply.
 
 The stripped image and brain mask will be saved in the new scalar volume and labelmap volume, respectively.
+
+![FreeSurfer SynthStrip Skull Strip](https://raw.githubusercontent.com/SlicerCBM/SlicerFreeSurferCommands/main/Screenshot01.png)

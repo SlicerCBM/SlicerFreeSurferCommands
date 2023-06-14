@@ -401,18 +401,30 @@ class FreeSurferSynthSegLogic(ScriptedLoadableModuleLogic):
 
         # Load temporary files back into nodes
         if outputNode:
-            storage = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVolumeArchetypeStorageNode')
-            storage.SetFileName(temp_output)
-            storage.ReadData(outputNode)
-            slicer.mrmlScene.RemoveNode(storage)
-            if outputNode.GetDisplayNode() is None:
-                outputNode.CreateDefaultDisplayNodes()
-            outputNode.GetDisplayNode().SetAndObserveColorNodeID(colorTableNode.GetID())
+            if outputNode.GetTypeDisplayName() == 'LabelMapVolume':
+                storage = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVolumeArchetypeStorageNode')
+                storage.SetFileName(temp_output)
+                storage.ReadData(outputNode)
+                slicer.mrmlScene.RemoveNode(storage)
+                if outputNode.GetDisplayNode() is None:
+                    outputNode.CreateDefaultDisplayNodes()
+                outputNode.GetDisplayNode().SetAndObserveColorNodeID(colorTableNode.GetID())
+            elif outputNode.GetTypeDisplayName() == 'Segmentation':
+                labelmap = slicer.util.loadLabelVolume(temp_output, properties={'colorNodeID': colorTableNode.GetID()})
+                slicer.modules.segmentations.logic().ImportLabelmapToSegmentationNode(labelmap, outputNode)
+                slicer.mrmlScene.RemoveNode(labelmap)
+            else:
+                raise NotImplementedError
         if resample:
             storage = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVolumeArchetypeStorageNode')
             storage.SetFileName(temp_resample)
             storage.ReadData(resample)
             slicer.mrmlScene.RemoveNode(storage)
+            # The resampled image has the same resolution as the segmentation
+            # so we associate it with the segmentation; otherwise, let the user
+            # set it manually.
+            if outputNode.GetTypeDisplayName() == 'Segmentation':
+                outputNode.SetReferenceImageGeometryParameterFromVolumeNode(resample)
 
         stopTime = time.time()
         logging.info(f'Processing completed in {stopTime-startTime:.2f} seconds')

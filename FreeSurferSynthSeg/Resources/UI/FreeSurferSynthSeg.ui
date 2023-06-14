@@ -75,6 +75,7 @@
         <property name="nodeTypes">
          <stringlist notr="true">
           <string>vtkMRMLLabelMapVolumeNode</string>
+          <string>vtkMRMLSegmentationNode</string>
          </stringlist>
         </property>
         <property name="showChildNodeTypes">

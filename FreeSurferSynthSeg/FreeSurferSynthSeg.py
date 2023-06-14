@@ -405,6 +405,8 @@ class FreeSurferSynthSegLogic(ScriptedLoadableModuleLogic):
             storage.SetFileName(temp_output)
             storage.ReadData(outputNode)
             slicer.mrmlScene.RemoveNode(storage)
+            if outputNode.GetDisplayNode() is None:
+                outputNode.CreateDefaultDisplayNodes()
             outputNode.GetDisplayNode().SetAndObserveColorNodeID(colorTableNode.GetID())
         if resample:
             storage = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLVolumeArchetypeStorageNode')

@@ -16,7 +16,7 @@ FreeSurfer SynthSeg Brain MRI Segmentation
 
 The FreeSurfer Commands extension for 3D Slicer contains the following modules:
 
-- **(TODO) FreeSurfer MRI Watershed Skull Strip:** Skull stripping using FreeSurfer's [MRI watershed (FSW) algorithm](https://surfer.nmr.mgh.harvard.edu/fswiki/mri_watershed).
+- **(TODO) FreeSurfer MRI Watershed Skull Strip:** Skull stripping using FreeSurfer's [MRI watershed (FSW) algorithm](https://surfer.nmr.mgh.harvard.edu/fswiki/mri_watershed) through the `mri_watershed` command.
 
 - **[FreeSurfer SynthSeg Brain MRI Segmentation](FreeSurferSynthSeg):** Brain MRI segmentation using [SynthSeg](https://github.com/BBillot/SynthSeg) packaged in [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/fswiki/SynthSeg) as the `mri_synthseg` command.
 
